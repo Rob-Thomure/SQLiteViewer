@@ -15,6 +15,7 @@ public class DatabaseConnection {
 
         SQLiteDataSource dataSource = new SQLiteDataSource();
         dataSource.setUrl(url);
+        dataSource.setReadOnly(true);
 
         String queryTables = "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'";
         try (Connection con = dataSource.getConnection()) {
@@ -27,7 +28,7 @@ public class DatabaseConnection {
                 e.printStackTrace();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("file : " + db + " doesn't exit");
         }
         return tables;
     }
@@ -55,7 +56,8 @@ public class DatabaseConnection {
                         model.addRow(data.toArray());
                     }
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    System.out.println("Invalid Query");
+                    return null;
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -65,9 +67,4 @@ public class DatabaseConnection {
         }
         return model;
     }
-
-
-
-
-
 }

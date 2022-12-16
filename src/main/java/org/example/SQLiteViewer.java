@@ -79,6 +79,7 @@ public class SQLiteViewer extends JFrame {
         queryTextArea.setName("QueryTextArea");
         queryTextArea.setLocation(10, 95);
         queryTextArea.setSize(565, 100);
+        queryTextArea.setEnabled(false);
         return queryTextArea;
 
     }
@@ -88,15 +89,27 @@ public class SQLiteViewer extends JFrame {
         executeQueryButton.setName("ExecuteQueryButton");
         executeQueryButton.setLocation(595, 95);
         executeQueryButton.setSize(80, 30);
+        executeQueryButton.setEnabled(false);
         return executeQueryButton;
+    }
+
+    private void displayErrorMessage(String error) {
+        JOptionPane.showMessageDialog(new Frame(), error);
+
     }
 
     private void createTable() {
         DatabaseConnection databaseConnection = new DatabaseConnection();
         DefaultTableModel defaultTableModel = databaseConnection.executeQuery(fileNameTextField.getText().trim(),
                 queryTextArea.getText().trim());
-        table.setModel(defaultTableModel);
-        repaint();
+        if (defaultTableModel == null) {
+            displayErrorMessage("Invalid Query");
+        } else {
+            table.setModel(defaultTableModel);
+            repaint();
+        }
+
+
     }
 
     private JScrollPane createEmptyTable() {
@@ -116,9 +129,17 @@ public class SQLiteViewer extends JFrame {
         tablesComboBox.setModel(model);
         queryTextArea.setText("");
         if (!tables.isEmpty()) {
+            tablesComboBox.setEnabled(true);
+            queryTextArea.setEnabled(true);
+            executeQueryButton.setEnabled(true);
             tablesComboBox.setSelectedIndex(0);
             String table = String.valueOf(tablesComboBox.getSelectedItem());
             queryTextArea.setText("SELECT * FROM " + table + ";");
+        } else {
+            tablesComboBox.setEnabled(false);
+            queryTextArea.setEnabled(false);
+            executeQueryButton.setEnabled(false);
+            displayErrorMessage("File doesn't exist");
         }
 
     }
