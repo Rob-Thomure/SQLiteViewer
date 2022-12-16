@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
@@ -10,6 +11,8 @@ public class SQLiteViewer extends JFrame {
     JComboBox tablesComboBox;
     JButton executeQueryButton;
     JTextArea queryTextArea;
+    JScrollPane tableScrollPane;
+    JTable table;
 
     public SQLiteViewer() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -34,10 +37,16 @@ public class SQLiteViewer extends JFrame {
         queryTextArea = createQueryTextArea();
         add(queryTextArea);
 
+        tableScrollPane = createEmptyTable();
+        add(tableScrollPane);
+
         openFileButton.addActionListener(actionEvent -> openDB(fileNameTextField.getText().trim()));
         tablesComboBox.addActionListener(actionEvent -> generateSelectQuery());
+        executeQueryButton.addActionListener(actionEvent -> createTable());
 
         setVisible(true);
+
+
     }
 
     private JTextField createFileNameTextField() {
@@ -82,6 +91,23 @@ public class SQLiteViewer extends JFrame {
         return executeQueryButton;
     }
 
+    private void createTable() {
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+        DefaultTableModel defaultTableModel = databaseConnection.executeQuery(fileNameTextField.getText().trim(),
+                queryTextArea.getText().trim());
+        table.setModel(defaultTableModel);
+        repaint();
+    }
+
+    private JScrollPane createEmptyTable() {
+        table = new JTable();
+        table.setName("Table");
+        JScrollPane jScrollPane = new JScrollPane(table);
+        jScrollPane.setLocation(10, 205);
+        jScrollPane.setSize(665, 650);
+        return jScrollPane;
+    }
+
     private void openDB(String db) {
         DatabaseConnection databaseConnection = new DatabaseConnection();
         List<String> tables = databaseConnection.getDBTable(db);
@@ -101,6 +127,5 @@ public class SQLiteViewer extends JFrame {
         String table = String.valueOf(tablesComboBox.getSelectedItem());
         queryTextArea.setText("SELECT * FROM " + table + ";");
     }
-
 
 }
